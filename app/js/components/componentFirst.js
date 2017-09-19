@@ -1,88 +1,66 @@
 angular.module('myApp')
     .component('componentFirst', {
       controller:
-        class Validacion {
-          static valida($event){
-            console.log('metodo estatico');
-            console.log(this.span1 +'|'+ this.span2 +'|'+ this.span3)
-            console.log($event)
-            if(this.span1 == false && this.span2 == false && this.span3 == false){
-              this.boton = false;
-            }else{
-              this.boton = true;
-            }
+        class {
+          constructor(){
+            // this.regexMax = '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,15}$';
+            this.newstyle;
+            this.boton = true;
+            this.check;
+            this.login;
+            this.user={};
           }
-            constructor(){
-              this.login;
-              this.email;
-              this.password;
-              this.check;
-              // this.acepta = false;
-              this.user ={};
-              this.boton = true;
-              this.span1= false;
-              this.span2 = false;
-              this.span3 = false;
 
+          analize(pass){
+            // debugger;
+            if(!(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,15}$/.test(pass))){
+              console.log('no es muy segura!!!')
+              this.newstyle = {'border':'1px solid red'};
+            }else{
+              this.newstyle = {'border':'1px solid green'};
             }
 
-            validarEm($event){
-              // console.log($event.target.value);
-              let correo = $event.target.value;
-              if(!(/[\w]+@{1}[\w]+\.[a-z]{2,3}/.test(correo)) || correo==""){
-                this.span1 = true;
+          }
+
+          validar(){
+
+            console.log(this.login.$error.required);
+
+              if(this.login.$error.required === undefined){
+                console.log('desbloquea boton')
+                this.boton = false;
               }else{
-                this.span1= false;
+                this.boton = true;
               }
+          }
 
-              Validacion.valida($event);
-            }
-
-            validarPass($event){
-              let contrasena= $event.target.value;
-              if(contrasena == "" || contrasena.length < 8){
-                this.span2 = true;
-              }else{
-                this.span2= true;
-              }
-              Validacion.valida();
-            }
-
-            validarCheck($event){
-              console.log($event.target.checked)
-              console.log('entro')
-
-              let acepta = $event.target.checked;
-              if(acepta == true){
-                this.span3 = false;
-              }else{
-                this.span3=true;
-              }
-                Validacion.valida();
-            }
-
-
-            enviar(){
-              alert('Form submitted with' + JSON.stringify(this.data))
-            }
+          enviar(){
+            alert('Form submitted with' + JSON.stringify(this.user))
+          }
         },
+
       template:` <div class="container">
                     <div class="row">
                       <div class="col-sm-6 col-sm-offset-3">
-                          <form name="login" nonValidate>
+                          <form name="$ctrl.login" nonValidate>
                             <div class="form-group">
                               <label for="email">Email address</label>
-                              <input type="email" class="form-control" name="email" placeholder="Email" ng-blur="$ctrl.validarEm($event)" required>
-                              <span ng-show="$ctrl.span1">El correo es requerido</span>
+                              <input type="email" class="form-control" name="email" placeholder="nombre@dominio" ng-focus="$ctrl.validar()" ng-model="$ctrl.user.email" ng-model-options="{ updateOn: 'blur' }" required>
+                              <span ng-show="$ctrl.login.$submitted || $ctrl.login.email.$touched">
+                                <span ng-show="$ctrl.login.email.$error.required">El campo es obligatorio.</span>
+                                <span ng-show="$ctrl.login.email.$error.email">Formato de email incorrecto.</span>
+                              </span>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" >
                               <label for="password">Password</label>
-                              <input type="password" class="form-control" name="password" placeholder="Password" ng-blur="$ctrl.validarPass($event)" required>
-                              <span ng-show="$ctrl.span2">El password es requerido, debe tener 8 caracteres como mínimo</span>
+                              <input type="password" class="form-control" name="password" placeholder="Use de 8-15 caracteres, incluya mayúsculas, minúsculas, números y caracteres especiales" ng-focus="$ctrl.validar()" ng-style="$ctrl.newstyle" ng-model="$ctrl.user.password" ng-change="$ctrl.analize($ctrl.user.password)" required>
+                              <span ng-show="$ctrl.login.$submitted || $ctrl.login.password.$touched">
+                                <span ng-show="$ctrl.login.password.$error.required">El campo es obligatorio.</span>
+                              </span>
                             </div>
                             <div class="checkbox">
                               <label>
-                                <input type="checkbox" name="check"  ng-click="$ctrl.validarCheck($event)"> Acepta los términos y condiciones.
+                                <input type="checkbox" name="check" ng-model="user.check" ng-change="$ctrl.validar()" required> Acepta los términos y condiciones.
                               </label>
                                 <span ng-show="$ctrl.span3">Es necesario aceptar los términos y condiciones</span>
                             </div>
